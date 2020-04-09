@@ -26,5 +26,4 @@ bundle exec rake test
 ```
 
 ## The Cops
-All cops are located under lib/rubocop/cop/netlify, and contain examples/documentation.
-
+All cops are located under [lib/rubocop/cop/netlify](lib/rubocop/cop/netlify), and contain examples/documentation.
