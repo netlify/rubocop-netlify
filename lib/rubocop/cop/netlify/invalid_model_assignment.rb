@@ -13,18 +13,15 @@ module RuboCop
       #   form.email = "bettse@netlify.com"
       class InvalidModelAssignment < Cop
         MSG = "Assigning to `attributes` will not update record"
-
-        def on_send(node)
-          if node.assign_attributes?
-            add_offense(node, message: MSG)
-          end
-        end
-
-        private
+        RESTRICT_ON_SEND = [:attributes].freeze
 
         def_node_matcher :assign_attributes?, <<~PATTERN
           (send (send (...) :attributes) :[]= _ _)
         PATTERN
+
+        def on_send(node)
+          add_offense(node) if assign_attributes? node
+        end
       end
     end
   end
