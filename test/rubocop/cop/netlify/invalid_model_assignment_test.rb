@@ -9,7 +9,7 @@ class InvalidModelAssignmentTest < Minitest::Test
         attr_reader :attributes
       end
       user = User.new
-      user.attributes[:email] = \"test@example.com\"
+      user.attributes[:email] = "test@example.com"
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assigning to `attributes` will not update record
     RUBY
   end
