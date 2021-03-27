@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
 
-  spec.add_dependency "rubocop", "~> 0.85", "< 0.87"
+  spec.add_dependency "rubocop", "~> 0.87", "< 0.88"
   spec.add_development_dependency "minitest", "~> 5.10"
 
   # Specify which files should be added to the gem when it is released.

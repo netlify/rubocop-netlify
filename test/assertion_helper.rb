@@ -3,7 +3,6 @@
 # Copied and adapted from:
 # https://github.com/rubocop-hq/rubocop-minitest/blob/v0.8.1/test/assertion_helper.rb
 #
-#
 # ===========
 #
 #
@@ -70,10 +69,10 @@ module AssertionHelper
   end
 
   def investigate(cop, processed_source)
-    forces = RuboCop::Cop::Force.all.each_with_object([]) do |klass, instances|
-      next unless cop.join_force?(klass)
-
-      instances << klass.new([cop])
+    needed = Hash.new { |h, k| h[k] = [] }
+    Array(cop.class.joining_forces).each { |force| needed[force] << cop }
+    forces = needed.map do |force_class, joining_cops|
+      force_class.new(joining_cops)
     end
 
     commissioner = RuboCop::Cop::Commissioner.new([cop], forces, raise_error: true)
