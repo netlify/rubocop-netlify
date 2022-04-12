@@ -27,3 +27,12 @@ bundle exec rake test
 
 ## The Cops
 All cops are located under [lib/rubocop/cop/netlify](lib/rubocop/cop/netlify), and contain examples/documentation.
+
+## Release
+
+1. Make sure you have an account in https://rubygems.org/ and be a part of https://rubygems.org/gems/rubocop-netlify owners
+2. Update a version in [lib/rubocop/netlify/version.rb](lib/rubocop/netlify/version.rb)
+3. Tag it (also maybe make a new release in GitHub)
+4. Run `gem build rubocop-netlify.gemspec` to build a gem
+5. Run `gem push` with a newly created gem file
+6. Done done!
