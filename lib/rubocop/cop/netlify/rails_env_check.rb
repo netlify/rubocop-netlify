@@ -10,7 +10,7 @@ module RuboCop
         #   # good
         #   Netlify.env.production?
         class RailsEnvCheck < Cop
-          MSG = "Prefer using `Netlify.env`` instead of `Rails.env` to check the environment"
+          MSG = "Prefer using `Netlify.env` instead of `Rails.env` to check the environment"
 
           def_node_matcher :rails_env?, <<~PATTERN
             (send (send (const {nil? cbase} :Rails) :env) /staging?|production?/)
