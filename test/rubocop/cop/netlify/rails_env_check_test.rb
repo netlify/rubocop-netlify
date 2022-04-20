@@ -6,14 +6,14 @@ class RailsEnvCheckTest < Minitest::Test
   def test_offense_with_rails_production
     assert_offense <<~RUBY
       if Rails.env.production?; end
-         ^^^^^^^^^^^^^^^^^^^^^ Prefer using `Netlify.env`` instead of `Rails.env` to check the environment
+         ^^^^^^^^^^^^^^^^^^^^^ Prefer using `Netlify.env` instead of `Rails.env` to check the environment
     RUBY
   end
 
   def test_offense_with_rails_staging
     assert_offense <<~RUBY
       if Rails.env.staging?; end
-         ^^^^^^^^^^^^^^^^^^ Prefer using `Netlify.env`` instead of `Rails.env` to check the environment
+         ^^^^^^^^^^^^^^^^^^ Prefer using `Netlify.env` instead of `Rails.env` to check the environment
     RUBY
   end
 
