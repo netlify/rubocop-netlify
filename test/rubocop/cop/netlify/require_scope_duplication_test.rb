@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class RequireScopeConfusionTest < Minitest::Test
+class RequireScopeDuplicationTest < Minitest::Test
   def test_offense_duplicate_conflicting_scopes
     assert_offense <<~RUBY
       class Controller

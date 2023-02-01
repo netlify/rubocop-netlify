@@ -28,7 +28,7 @@ module RuboCop
       #
       #   # good
       #   require_scope "??" # Be careful! 
-      class RequireScopeConfusion < RequireScopeBase
+      class RequireScopeDuplication < RequireScopeBase
         def on_send(node)
           super(node)
           if node.method_name == :require_scope
