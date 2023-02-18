@@ -16,6 +16,9 @@ module RuboCop
       #   require_scope "all:read"
       #   def index
       class RequireScopeSemantics < RequireScopeBase
+        WRITE_KEYWORDS = ["update", "create", "destroy", "new", "revoke", "delete"].freeze
+        READ_KEYWORDS = ["show", "index", "edit"].freeze
+
         def on_def(node)
           return unless @is_controller
           return unless @method_protection == :public
@@ -25,14 +28,14 @@ module RuboCop
           require_scope = require_scopes.last # this is the observed matching behavior
           scopes = require_scope[:scopes]
 
-          if ["new", "update", "create", "destroy", "delete"].any? { |s| node.method_name.to_s.include?(s) }
+          if WRITE_KEYWORDS.any? { |s| node.method_name.to_s.include?(s) }
             read_semantic_scopes = scopes.select { |scope| scope.include?("read") }
             unless read_semantic_scopes.empty?
               add_offense(node, message: format("Semantic naming mismatch between method `%s` and scope `%s`", node.method_name, read_semantic_scopes[0]))
             end
           end
 
-          if ["index", "show", "list"].any? { |s| node.method_name.to_s.include?(s) }
+          if READ_KEYWORDS.any? { |s| node.method_name.to_s.include?(s) }
             write_semantic_scopes = scopes.select { |scope| scope.include?("write") }
             unless write_semantic_scopes.empty?
               add_offense(node, message: format("Semantic naming mismatch between method `%s` and scope `%s`", node.method_name, write_semantic_scopes[0]))
