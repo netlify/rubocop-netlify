@@ -20,9 +20,10 @@ module RuboCop
           return unless @is_controller
           return unless @method_protection == :public
 
-          scopes = scopes_for_action(node.method_name)
-          return if scopes.empty?
-          scopes = scopes.last # this is the observed matching behavior
+          require_scopes = require_scopes_for_method(node.method_name)
+          return if require_scopes.empty?
+          require_scope = require_scopes.last # this is the observed matching behavior
+          scopes = require_scope[:scopes]
 
           if ["new", "update", "create", "destroy", "delete"].any? { |s| node.method_name.to_s.include?(s) }
             read_semantic_scopes = scopes.select { |scope| scope.include?("read") }

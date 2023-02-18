@@ -3,15 +3,21 @@
 require 'test_helper'
 
 class RequireScopeBaseTest < Minitest::Test
+  def require_scopes_defined
+    return @cop.instance_variable_get('@require_scopes').map { |rs| rs.slice(:scopes, :limits) }
+  end
+
+  def scopes_for_method(method_name)
+    return @cop.send(:require_scopes_for_method, method_name).map { |rs| rs[:scopes] }
+  end
+
   def test_no_scopes
     assert_no_offenses <<~RUBY
       class Controller
       end
     RUBY
 
-    assert_equal [], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    assert_equal [], require_scopes_defined
   end
 
   def test_singular_scopes
@@ -21,9 +27,8 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read"], :limits=>{}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [["all:read"]], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)    
+    assert_equal [{:scopes=>["all:read"], :limits=>{}}], require_scopes_defined
+    assert_equal [["all:read"]], scopes_for_method(:any_method)
   end  
 
   def test_list_of_scopes
@@ -33,9 +38,8 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)    
+    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{}}], require_scopes_defined
+    assert_equal [["all:read", "user:read"]], scopes_for_method(:any_method)
   end 
 
   def test_only_clause_singular
@@ -45,10 +49,9 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{only: [:index]}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking, :index], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :index)    
-    assert_equal [], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{only: [:index]}}], require_scopes_defined
+    assert_equal [["all:read", "user:read"]], scopes_for_method(:index)    
+    assert_equal [], scopes_for_method(:any_other_method)
   end   
 
   def test_only_clause_array
@@ -58,11 +61,10 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{only: [:index, :delete]}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking, :index, :delete], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :index)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :delete)
-    assert_equal [], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{only: [:index, :delete]}}], require_scopes_defined
+    assert_equal [["all:read", "user:read"]], scopes_for_method(:index)
+    assert_equal [["all:read", "user:read"]], scopes_for_method(:delete)
+    assert_equal [], scopes_for_method(:any_other_method)
   end   
 
   def test_except_clause_singular
@@ -72,10 +74,8 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{except: [:index]}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking, :index], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [], @cop.send(:scopes_for_action, :index)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{except: [:index]}}], require_scopes_defined
+    assert_equal [], scopes_for_method(:index)
   end   
   
   def test_except_clause_array
@@ -85,11 +85,10 @@ class RequireScopeBaseTest < Minitest::Test
       end
     RUBY
 
-    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{except: [:index, :delete]}}], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking, :index, :delete], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [], @cop.send(:scopes_for_action, :index)
-    assert_equal [], @cop.send(:scopes_for_action, :delete)    
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    assert_equal [{:scopes=>["all:read", "user:read"], :limits=>{except: [:index, :delete]}}], require_scopes_defined
+    assert_equal [], scopes_for_method(:index)
+    assert_equal [], scopes_for_method(:delete)    
+    assert_equal [["all:read", "user:read"]], scopes_for_method(:any_other_method)
   end 
 
   def test_multiple_matching_scopes
@@ -103,14 +102,12 @@ class RequireScopeBaseTest < Minitest::Test
     assert_equal [
       {:scopes=>["all:read", "user:read"], :limits=>{except: [:index, :delete]}},
       {:scopes=>["all:write", "user:write"], :limits=>{only: [:destroy]}}
-    ], @cop.instance_variable_get('@require_scopes')
-    assert_equal [:fake_method_for_scope_checking, :index, :delete, :destroy], @cop.send(:all_method_names_for_scope_checking)
-    assert_equal [], @cop.send(:scopes_for_action, :index)
-    assert_equal [], @cop.send(:scopes_for_action, :delete)    
+    ], require_scopes_defined
+    assert_equal [], scopes_for_method(:index)
+    assert_equal [], scopes_for_method(:delete)    
     assert_equal [
       ["all:read", "user:read"],
       ["all:write", "user:write"]
-    ], @cop.send(:scopes_for_action, :destroy)
-    assert_equal [["all:read", "user:read"]], @cop.send(:scopes_for_action, :fake_method_for_scope_checking)
+    ], scopes_for_method(:destroy)
   end   
 end

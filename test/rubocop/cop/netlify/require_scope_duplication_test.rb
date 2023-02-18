@@ -9,6 +9,10 @@ class RequireScopeDuplicationTest < Minitest::Test
         require_scope "public"
         require_scope "all:read"
         ^^^^^^^^^^^^^^^^^^^^^^^^ Multiple overlapping definitions: ["public"] and ["all:read"].
+
+        def index
+
+        end
       end
     RUBY
   end
@@ -19,6 +23,10 @@ class RequireScopeDuplicationTest < Minitest::Test
         require_scope "all:read", "user:read", except: [:index, :delete]
         require_scope "all:write", "user:write", only: [:destroy]
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Multiple overlapping definitions: [\"all:read\", \"user:read\"] and [\"all:write\", \"user:write\"].
+
+        def destroy
+
+        end
       end
     RUBY
   end
@@ -28,6 +36,10 @@ class RequireScopeDuplicationTest < Minitest::Test
       class Controller
         require_scope "all:read", only: [:show]
         require_scope "all:read", only: [:index]
+
+        def index
+
+        end
       end
     RUBY
   end   

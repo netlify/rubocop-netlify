@@ -32,7 +32,8 @@ module RuboCop
 
             @require_scopes << {
               scopes: scopes,
-              limits: limits
+              limits: limits,
+              node: node
             }
           else
             @method_protection = node.method_name
@@ -41,19 +42,15 @@ module RuboCop
 
         private
 
-        def all_method_names_for_scope_checking
-          [:fake_method_for_scope_checking] + @require_scopes.map { |rs| (rs[:limits][:only] || []) +(rs[:limits][:except] || [])  }.reduce([], &:+).uniq
-        end
-
-        def scopes_for_action(action)
+        def require_scopes_for_method(action)
           matches = []
           @require_scopes.each do |require_scope|
             if require_scope[:limits][:only]
-              matches << require_scope[:scopes] if require_scope[:limits][:only].include?(action)
+              matches << require_scope if require_scope[:limits][:only].include?(action)
             elsif require_scope[:limits][:except]
-              matches << require_scope[:scopes] unless require_scope[:limits][:except].include?(action)
+              matches << require_scope unless require_scope[:limits][:except].include?(action)
             else
-              matches << require_scope[:scopes]
+              matches << require_scope
             end
           end
 
