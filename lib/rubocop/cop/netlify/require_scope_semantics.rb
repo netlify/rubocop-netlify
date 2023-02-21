@@ -16,8 +16,8 @@ module RuboCop
       #   require_scope "all:read"
       #   def index
       class RequireScopeSemantics < RequireScopeBase
-        WRITE_KEYWORDS = ["update", "create", "destroy", "new", "revoke", "delete"].freeze
-        READ_KEYWORDS = ["show", "index", "edit"].freeze
+        WRITE_KEYWORDS = ["update", "create", "destroy", "new", "edit", "revoke", "delete"].freeze
+        READ_KEYWORDS = ["show", "index"].freeze
 
         def on_def(node)
           return unless @is_controller
