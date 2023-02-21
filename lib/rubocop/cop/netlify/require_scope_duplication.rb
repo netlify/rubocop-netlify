@@ -34,7 +34,6 @@ module RuboCop
           return unless @method_protection == :public
       
           require_scopes = require_scopes_for_method(node.method_name)
-          # raise "require_scopes #{node.method_name} = #{require_scopes.inspect}"
           if require_scopes.size > 1
             add_offense(require_scopes.last[:node], message: "Multiple overlapping definitions: #{require_scopes.map { |rs| rs[:scopes].inspect }.join(" and ")}.")
           end
